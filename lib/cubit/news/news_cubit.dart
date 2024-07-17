@@ -11,7 +11,7 @@ import 'news_state.dart';
 class NewsCubit extends Cubit<NewsState> {
   NewsCubit({
     this.newsType = NewsType.topStories,
-    this.count = 10,
+    this.count = 20,
   }) : super(NewsInitial());
 
   NewsType newsType;
@@ -28,7 +28,7 @@ class NewsCubit extends Cubit<NewsState> {
       emit(MoreNewsLoading(currentState.stories));
       try {
         final List<Story> newStories =
-            await _fetchStoriesInIsolate(newsType, count + 10);
+            await _fetchStoriesInIsolate(newsType, count + 15);
         final List<Story> allStories = List.from(currentState.stories)
           ..addAll(newStories);
         count += 10;
