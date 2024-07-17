@@ -1,3 +1,4 @@
+
 import 'package:tech_i/cubit/scrollButton/scroll_button_cubit.dart';
 import 'package:tech_i/cubit/news/news_cubit.dart';
 import 'package:tech_i/cubit/news/news_state.dart';
@@ -35,6 +36,7 @@ class _NewsPageState extends State<NewsPage>
     _tabController = TabController(length: NewsType.values.length, vsync: this);
     _tabController.addListener(() {
       if (_tabController.indexIsChanging) {
+        // debugPrint("NewsType ${NewsType.values[_tabController.index]}");
         newsCubit.setNewsType(NewsType.values[_tabController.index]);
       }
     });

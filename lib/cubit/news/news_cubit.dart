@@ -16,11 +16,9 @@ class NewsCubit extends Cubit<NewsState> {
 
   NewsType newsType;
   int count;
-  List<int> _allStoryIds = [];
 
   void setNewsType(NewsType type) {
     newsType = type;
-    count = 10;
     fetchStories();
   }
 
@@ -29,12 +27,11 @@ class NewsCubit extends Cubit<NewsState> {
     if (currentState is NewsLoaded && currentState is! MoreNewsLoading) {
       emit(MoreNewsLoading(currentState.stories));
       try {
-        final List<Story> newStories = await _fetchStoriesFromIds(
-          _allStoryIds.skip(currentState.stories.length).take(count).toList(),
-        );
+        final List<Story> newStories =
+            await _fetchStoriesInIsolate(newsType, count + 10);
         final List<Story> allStories = List.from(currentState.stories)
           ..addAll(newStories);
-        allStories.sort((a, b) => b.score.compareTo(a.score));
+        count += 10;
         emit(NewsLoaded(allStories));
       } catch (e) {
         emit(NewsError(e.toString()));
@@ -45,18 +42,7 @@ class NewsCubit extends Cubit<NewsState> {
   Future<void> fetchStories() async {
     emit(NewsLoading());
     try {
-      if (_allStoryIds.isEmpty) {
-        final response = await http.get(urlForStories(newsType));
-        if (response.statusCode == 200) {
-          _allStoryIds = List<int>.from(jsonDecode(response.body));
-        } else {
-          throw NewsException("Unable to fetch data! ${response.statusCode}");
-        }
-      }
-      final List<Story> stories = await _fetchStoriesFromIds(
-        _allStoryIds.take(count).toList(),
-      );
-      stories.sort((a, b) => b.score.compareTo(a.score));
+      final List<Story> stories = await _fetchStoriesInIsolate(newsType, count);
       emit(NewsLoaded(stories));
     } catch (e) {
       emit(NewsError(e.toString()));
@@ -73,26 +59,38 @@ class NewsCubit extends Cubit<NewsState> {
     }
   }
 
-  Future<List<Story>> _fetchStoriesFromIds(List<int> storyIds) async {
+  Future<List<Story>> _fetchStoriesInIsolate(NewsType type, int count) async {
     final responsePort = ReceivePort();
     await Isolate.spawn(
-        _fetchStoriesIsolate, [responsePort.sendPort, storyIds]);
+        _fetchStoriesIsolate, [responsePort.sendPort, type, count]);
 
     return await responsePort.first;
   }
 
   static Future<void> _fetchStoriesIsolate(List<dynamic> args) async {
     SendPort sendPort = args[0];
-    List<int> storyIds = args[1];
-
+    NewsType type = args[1];
+    int count = args[2];
+    // debugPrint("url for stories ${urlForStories(type)}");
     try {
-      final List<Story> stories =
-          await Future.wait(storyIds.map((storyId) async {
-        final response = await http.get(urlForStory(storyId));
-        final json = jsonDecode(response.body);
-        return Story.fromJson(json);
-      }));
-      sendPort.send(stories);
+      final response = await http.get(urlForStories(type));
+
+      if (response.statusCode == 200) {
+        Iterable storyIds = jsonDecode(response.body);
+
+        final List<Story> stories =
+            await Future.wait(storyIds.take(count).map((storyId) async {
+          final response = await http.get(urlForStory(storyId));
+          // debugPrint("response $response");
+          final json = jsonDecode(response.body);
+          // debugPrint("json Data $json");
+          return Story.fromJson(json);
+        }));
+        // debugPrint("stories length ${stories.length}");
+        sendPort.send(stories);
+      } else {
+        throw NewsException("Unable to fetch data! ${response.statusCode}");
+      }
     } catch (e) {
       sendPort.send(e);
     }
