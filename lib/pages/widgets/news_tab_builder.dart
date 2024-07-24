@@ -15,7 +15,9 @@ class NewsTabBuilder extends StatelessWidget {
     return TabBar(
       controller: _tabController,
       tabs: NewsType.values.map((type) {
-        return Tab(text: type.displayName);
+        return Tab(
+          text: type.displayName,
+        );
       }).toList(),
     );
   }

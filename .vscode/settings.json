@@ -4,5 +4,6 @@
         "iframe",
         "inappwebview",
         "Inspectable"
-    ]
+    ],
+    "cmake.sourceDirectory": "C:/Users/SaiLaptop/Desktop/projects/flutter_tasks/daily_tech/windows/flutter"
 }

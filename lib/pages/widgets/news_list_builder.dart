@@ -43,10 +43,23 @@ class _NewsListBuilderState extends State<NewsListBuilder> {
                 },
               );
             } else if (state is NewsError) {
-              return Center(child: Text(state.message));
+              return GestureDetector(
+                onTap: () {
+                  context.read<NewsCubit>().fetchStories();
+                },
+                child: Center(
+                  child: Text(
+                    "Error: ${state.message},\n Tap to refresh",
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              );
             } else {
               return const Center(
-                  child: Text('Press the button to fetch stories'));
+                child: Text(
+                  'Press the button to fetch stories',
+                ),
+              );
             }
           },
         ),

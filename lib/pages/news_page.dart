@@ -1,4 +1,3 @@
-
 import 'package:tech_i/cubit/scrollButton/scroll_button_cubit.dart';
 import 'package:tech_i/cubit/news/news_cubit.dart';
 import 'package:tech_i/cubit/news/news_state.dart';

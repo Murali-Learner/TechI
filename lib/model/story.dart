@@ -36,16 +36,16 @@ class Story {
   });
 
   factory Story.fromJson(json) => Story(
-        id: json['id'],
+        id: json['id'] ?? '',
         deleted: json['deleted'] ?? false,
-        type: json['type'],
-        by: json["by"],
-        time: json["time"],
+        type: json['type'] ?? '',
+        by: json["by"] ?? '',
+        time: json["time"] ?? 0,
         dead: json["dead"] ?? false,
         descendants: json["descendants"] ?? 0,
-        score: json["score"],
-        title: json["title"],
-        url: json["url"] ?? 'null',
+        score: json["score"] ?? 0,
+        title: json["title"] ?? '',
+        url: json["url"] ?? '',
         kids: json["kids"]?.cast<int>() ?? [],
       );
 }
