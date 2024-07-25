@@ -24,8 +24,8 @@ https://github.com/user-attachments/assets/196a67d1-2544-47f0-b267-5eba8b8a5f48
 
 1. Clone the repository:
    ```sh
-   git clone https://github.com/Murali-Learner/tech_i.git
-   cd tech_i
+   git clone https://github.com/Murali-Learner/TechI.git
+   cd TechI
    ```
 
 2. Install the dependencies:
