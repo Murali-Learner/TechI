@@ -28,11 +28,11 @@ class _NewsListBuilderState extends State<NewsListBuilder> {
                   : (state as MoreNewsLoading).stories;
               return ListView.builder(
                 controller: widget.controller,
-                itemCount: stories.length + 1,
+                itemCount: stories.keys.length + 1,
                 itemBuilder: (context, index) {
                   if (index < stories.length) {
                     return NewsCard(
-                      story: stories[index],
+                      story: stories[stories.keys.elementAt(index)]!,
                     );
                   } else {
                     return const Padding(

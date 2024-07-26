@@ -1,7 +1,9 @@
+import 'package:tech_i/cubit/favNews/fav_cubit.dart';
 import 'package:tech_i/cubit/scrollButton/scroll_button_cubit.dart';
 import 'package:tech_i/cubit/news/news_cubit.dart';
 import 'package:tech_i/cubit/news/news_state.dart';
 import 'package:tech_i/helper/enums.dart';
+import 'package:tech_i/pages/fav_news_page.dart';
 import 'package:tech_i/pages/widgets/news_list_builder.dart';
 import 'package:tech_i/pages/widgets/news_tab_builder.dart';
 import 'package:tech_i/pages/widgets/theme_set_icon_widget.dart';
@@ -9,6 +11,7 @@ import 'package:tech_i/utils/extension/context_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:tech_i/utils/extension/spacer_extension.dart';
 
 class NewsPage extends StatefulWidget {
   const NewsPage({super.key});
@@ -84,7 +87,23 @@ class _NewsPageState extends State<NewsPage>
           style: context.textTheme.bodyMedium!
               .copyWith(fontWeight: FontWeight.bold, fontSize: 25),
         ),
-        actions: const [ThemeSetIconWidget()],
+        actions: [
+          const ThemeSetIconWidget(),
+          10.hSpace,
+          IconButton(
+              onPressed: () async {
+                await context.read<FavCubit>().fetchFavoriteStories();
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) {
+                      return const FavNewsPage();
+                    },
+                  ),
+                );
+              },
+              icon: const Icon(Icons.favorite_border_outlined))
+        ],
       ),
       body: RefreshIndicator(
         onRefresh: _refresh,

@@ -9,6 +9,7 @@ extension NewsTypeExtension on NewsType {
         return 'New';
       case NewsType.bestStories:
         return 'Best';
+
       default:
         return '';
     }

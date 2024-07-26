@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tech_i/helper/constants.dart';
 import 'package:tech_i/helper/enums.dart';
+import 'package:tech_i/helper/hive_helper.dart';
 import 'package:tech_i/model/story.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart' as http;
@@ -18,24 +19,28 @@ class NewsCubit extends Cubit<NewsState> {
   int pageSize;
   List<int> allStoryIds = [];
   int currentPage = 0;
+  Map<int, Story> favNews = {};
 
   void setNewsType(NewsType type) {
     newsType = type;
+
     fetchStories();
   }
 
   void setPageCount() async {
-    final currentState = state;
+    var currentState = state;
     if (currentState is NewsLoaded && currentState is! MoreNewsLoading) {
       emit(MoreNewsLoading(currentState.stories));
       try {
-        final List<Story> newStories = await _fetchStoriesFromIds(
+        final Map<int, Story> newStories = await _fetchStoriesFromIds(
             allStoryIds, currentPage * pageSize, pageSize);
         currentPage++;
-        final List<Story> allStories = List.from(currentState.stories)
-          ..addAll(newStories);
-        debugPrint("allStories ${allStories.length}");
-        emit(NewsLoaded(allStories));
+        currentState = currentState.copyWith(stories: {
+          ...currentState.stories,
+          ...newStories,
+        });
+        emit(currentState);
+        debugPrint("allStories ${currentState.stories.length}");
       } catch (e) {
         emit(NewsError(e.toString()));
       }
@@ -47,7 +52,7 @@ class NewsCubit extends Cubit<NewsState> {
     try {
       allStoryIds = await _fetchStoryIdsInIsolate(newsType);
       currentPage = 0;
-      final List<Story> stories = await _fetchStoriesFromIds(
+      final Map<int, Story> stories = await _fetchStoriesFromIds(
           allStoryIds, currentPage * pageSize, pageSize);
       currentPage++;
       emit(NewsLoaded(stories));
@@ -57,12 +62,31 @@ class NewsCubit extends Cubit<NewsState> {
   }
 
   Future<void> fetchStory(int storyID) async {
-    emit(NewsLoading());
     try {
-      final Story story = await _fetchStoryInIsolate(storyID);
-      emit(NewsLoaded([story]));
+      if (state is NewsLoaded) {
+        final Story story = await _fetchStoryInIsolate(storyID);
+        NewsLoaded loadedState = state as NewsLoaded;
+        loadedState = loadedState.copyWith(stories: {
+          ...loadedState.stories,
+          storyID: story,
+        });
+        emit(loadedState);
+      }
     } catch (e) {
       emit(NewsError(e.toString()));
+    }
+  }
+
+  Future<void> toggleFavorite(Story story) async {
+    if (state is NewsLoaded) {
+      NewsLoaded loadedState = state as NewsLoaded;
+      if (loadedState.stories.containsKey(story.id)) {
+        loadedState = loadedState.copyWith(stories: {
+          ...loadedState.stories,
+          story.id: story.copyWith(isFav: !story.isFav),
+        });
+        emit(loadedState);
+      }
     }
   }
 
@@ -103,24 +127,26 @@ class NewsCubit extends Cubit<NewsState> {
     }
   }
 
-  Future<List<Story>> _fetchStoriesFromIds(
-      List<int> storyIds, int startIndex, int count) async {
+  Future<Map<int, Story>> _fetchStoriesFromIds(
+    List<int> storyIds,
+    int startIndex,
+    int count,
+  ) async {
     final idsToFetch = storyIds.skip(startIndex).take(count).toList();
 
-    final stories = await Future.wait(idsToFetch.map((id) async {
-      try {
-        return await _fetchStoryInIsolate(id);
-      } catch (e) {
-        return null;
-      }
-    }));
+    Map<int, Story> stories = {};
+    for (final id in idsToFetch) {
+      stories[id] = await _fetchStoryInIsolate(id);
+    }
 
-    return stories.where((story) => story != null).cast<Story>().toList();
+    return Future.value(stories);
   }
 
   Future<Story> _fetchStoryInIsolate(int storyId) async {
     final responsePort = ReceivePort();
-    await Isolate.spawn(_fetchStoryIsolate, [responsePort.sendPort, storyId]);
+    final stories = HiveHelper.getFavoriteStories();
+    await Isolate.spawn(
+        _fetchStoryIsolate, [responsePort.sendPort, storyId, stories]);
     final port = await responsePort.first;
     if (port is Map && port['success'] == true) {
       return port['story'];
@@ -134,13 +160,14 @@ class NewsCubit extends Cubit<NewsState> {
   static Future<void> _fetchStoryIsolate(List<dynamic> args) async {
     SendPort sendPort = args[0];
     int storyId = args[1];
-
+    Map<int, Story> stories = args[2];
     try {
       final response = await http.get(urlForStory(storyId));
 
       if (response.statusCode == 200 && response.body != "null") {
         final json = jsonDecode(response.body);
-        final story = Story.fromJson(json);
+        Story story = Story.fromJson(json);
+        story = story.copyWith(isFav: stories.containsKey(story.id));
         // debugPrint("story ${story}");
         sendPort.send({'success': true, 'story': story});
       } else {
