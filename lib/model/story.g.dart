@@ -28,7 +28,7 @@ class StoryAdapter extends TypeAdapter<Story> {
       score: fields[8] as int,
       title: fields[9] as String,
       url: fields[10] as String,
-      isFav: fields[11] as bool,
+      isBookmark: fields[11] as bool,
     );
   }
 
@@ -59,7 +59,7 @@ class StoryAdapter extends TypeAdapter<Story> {
       ..writeByte(10)
       ..write(obj.url)
       ..writeByte(11)
-      ..write(obj.isFav);
+      ..write(obj.isBookmark);
   }
 
   @override

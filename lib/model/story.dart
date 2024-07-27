@@ -1,5 +1,5 @@
 import 'package:hive/hive.dart';
-import 'package:tech_i/helper/hive_helper.dart';
+import 'package:TechI/helper/hive_helper.dart';
 part 'story.g.dart';
 
 @HiveType(typeId: 0)
@@ -27,7 +27,7 @@ class Story {
   @HiveField(10)
   final String url;
   @HiveField(11)
-  final bool isFav;
+  final bool isBookmark;
 
   Story({
     required this.id,
@@ -41,7 +41,7 @@ class Story {
     required this.score,
     required this.title,
     required this.url,
-    this.isFav = false,
+    this.isBookmark = false,
   });
 
   factory Story.fromJson(Map<String, dynamic> json) {
@@ -57,7 +57,7 @@ class Story {
       title: json["title"] ?? '',
       url: json["url"] ?? '',
       kids: json["kids"]?.cast<int>() ?? [],
-      isFav: HiveHelper.isFav(json["id"] ?? 0),
+      isBookmark: HiveHelper.isFav(json["id"] ?? 0),
     );
   }
 
@@ -73,7 +73,7 @@ class Story {
     int? score,
     String? title,
     String? url,
-    bool? isFav,
+    bool? isBookmark,
   }) {
     return Story(
       id: id ?? this.id,
@@ -87,7 +87,7 @@ class Story {
       score: score ?? this.score,
       title: title ?? this.title,
       url: url ?? this.url,
-      isFav: isFav ?? this.isFav,
+      isBookmark: isBookmark ?? this.isBookmark,
     );
   }
 }

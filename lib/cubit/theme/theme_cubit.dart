@@ -1,4 +1,4 @@
-import 'package:tech_i/utils/theme_data.dart';
+import 'package:TechI/utils/theme_data.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

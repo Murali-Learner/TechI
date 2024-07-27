@@ -1,9 +1,10 @@
+import 'package:TechI/utils/extension/spacer_extension.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:tech_i/cubit/favNews/fav_cubit.dart';
-import 'package:tech_i/cubit/news/news_cubit.dart';
-import 'package:tech_i/model/story.dart';
-import 'package:tech_i/pages/widgets/in_app_web_view.dart';
-import 'package:tech_i/utils/extension/context_extension.dart';
+import 'package:TechI/cubit/bookmarkNews/bookmark_cubit.dart';
+import 'package:TechI/cubit/news/news_cubit.dart';
+import 'package:TechI/model/story.dart';
+import 'package:TechI/pages/web_view_page.dart';
+import 'package:TechI/utils/extension/context_extension.dart';
 import 'package:flutter/material.dart';
 
 class NewsCard extends StatefulWidget {
@@ -16,13 +17,13 @@ class NewsCard extends StatefulWidget {
 }
 
 class _NewsCardState extends State<NewsCard> {
-  late FavCubit _favCubit;
+  late BookmarkCubit _favCubit;
   late NewsCubit _newsCubit;
 
   @override
   void initState() {
     super.initState();
-    _favCubit = context.read<FavCubit>();
+    _favCubit = context.read<BookmarkCubit>();
     _newsCubit = context.read<NewsCubit>();
     setState(() {});
   }
@@ -43,7 +44,7 @@ class _NewsCardState extends State<NewsCard> {
             context,
             MaterialPageRoute(
               builder: (context) {
-                return InAppWebViewPage(story: widget.story);
+                return WebViewPage(story: widget.story);
               },
             ),
           );
@@ -68,8 +69,10 @@ class _NewsCardState extends State<NewsCard> {
                             SizedBox(
                               child: Text(
                                 widget.story.title,
-                                style: context.textTheme.bodyLarge!
-                                    .copyWith(fontSize: 15),
+                                style: context.textTheme.bodyLarge!.copyWith(
+                                  fontSize: context.isTablet ? 16 : 16,
+                                  fontWeight: FontWeight.w500,
+                                ),
                                 // overflow: TextOverflow.ellipsis,
                                 // maxLines: 1,
                               ),
@@ -88,26 +91,35 @@ class _NewsCardState extends State<NewsCard> {
                           toggleFavorite();
                         },
                         icon: Icon(
-                          widget.story.isFav
+                          widget.story.isBookmark
                               ? Icons.bookmark
                               : Icons.bookmark_border_outlined,
-                          color: widget.story.isFav ? Colors.red : null,
+                          color: widget.story.isBookmark ? Colors.red : null,
                         ),
                       )
                     ],
                   ),
+                  5.vSpace,
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
                         'By ${widget.story.by}',
-                        style: context.textTheme.bodyMedium!.copyWith(
-                          color: context.theme.dividerColor,
+
+                        style: context.textTheme.headlineSmall!.copyWith(
+                          fontSize: 14,
+                          // fontWeight: FontWeight.w500,
                         ),
+                        // style: context.textTheme.bodyMedium!.copyWith(
+                        //   color: context.theme.dividerColor,
+                        // ),
                       ),
                       Text(
                         'Score: ${widget.story.score}',
-                        style: context.textTheme.bodyLarge,
+                        style: context.textTheme.headlineSmall!.copyWith(
+                          fontSize: 14,
+                          // fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ],
                   ),

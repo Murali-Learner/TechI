@@ -1,4 +1,4 @@
-import 'package:tech_i/model/story.dart';
+import 'package:TechI/model/story.dart';
 
 abstract class NewsState {}
 
