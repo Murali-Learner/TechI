@@ -1,4 +1,3 @@
-
 # TechI
 
 TechI is a mobile application built with Flutter that brings you the latest and most relevant tech news. The app uses the Hacker News original APIs to fetch news articles, providing a seamless and engaging user experience with features like pagination, theming, in-app webview, and efficient HTTP calls using isolates.
@@ -23,12 +22,14 @@ https://github.com/user-attachments/assets/196a67d1-2544-47f0-b267-5eba8b8a5f48
 ### Installation
 
 1. Clone the repository:
+
    ```sh
    git clone https://github.com/Murali-Learner/TechI.git
    cd TechI
    ```
 
 2. Install the dependencies:
+
    ```sh
    flutter pub get
    ```
@@ -57,7 +58,7 @@ This project is open for contributions. Feel free to submit a pull request or op
 
 ## Releases
 
-Check out the latest release [here](https://github.com/Murali-Learner/tech_i/releases/tag/v.1.0.0).
+Check out the latest release [here](https://github.com/Murali-Learner/TechI/releases/tag/v.1.0.0).
 
 ## Acknowledgments
 

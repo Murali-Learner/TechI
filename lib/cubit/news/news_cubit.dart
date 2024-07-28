@@ -1,7 +1,8 @@
+import 'package:TechI/helper/enums.dart';
 import 'package:flutter/material.dart';
-import 'package:tech_i/helper/constants.dart';
-import 'package:tech_i/helper/enums.dart';
-import 'package:tech_i/model/story.dart';
+import 'package:TechI/helper/constants.dart';
+import 'package:TechI/helper/hive_helper.dart';
+import 'package:TechI/model/story.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -11,31 +12,35 @@ import 'news_state.dart';
 class NewsCubit extends Cubit<NewsState> {
   NewsCubit({
     this.newsType = NewsType.topStories,
-    this.pageSize = 15,
+    this.pageSize = 12,
   }) : super(NewsInitial());
 
   NewsType newsType;
   int pageSize;
   List<int> allStoryIds = [];
   int currentPage = 0;
+  Map<int, Story> favNews = {};
 
   void setNewsType(NewsType type) {
     newsType = type;
+
     fetchStories();
   }
 
   void setPageCount() async {
-    final currentState = state;
+    var currentState = state;
     if (currentState is NewsLoaded && currentState is! MoreNewsLoading) {
       emit(MoreNewsLoading(currentState.stories));
       try {
-        final List<Story> newStories = await _fetchStoriesFromIds(
+        final Map<int, Story> newStories = await _fetchStoriesFromIds(
             allStoryIds, currentPage * pageSize, pageSize);
         currentPage++;
-        final List<Story> allStories = List.from(currentState.stories)
-          ..addAll(newStories);
-        debugPrint("allStories ${allStories.length}");
-        emit(NewsLoaded(allStories));
+        currentState = currentState.copyWith(stories: {
+          ...currentState.stories,
+          ...newStories,
+        });
+        emit(currentState);
+        debugPrint("allStories ${currentState.stories.length}");
       } catch (e) {
         emit(NewsError(e.toString()));
       }
@@ -47,8 +52,12 @@ class NewsCubit extends Cubit<NewsState> {
     try {
       allStoryIds = await _fetchStoryIdsInIsolate(newsType);
       currentPage = 0;
-      final List<Story> stories = await _fetchStoriesFromIds(
-          allStoryIds, currentPage * pageSize, pageSize);
+      print("allStoryIds ${allStoryIds.length}");
+      final Map<int, Story> stories = await _fetchStoriesFromIds(
+        allStoryIds,
+        currentPage * pageSize,
+        pageSize,
+      );
       currentPage++;
       emit(NewsLoaded(stories));
     } catch (e) {
@@ -57,12 +66,35 @@ class NewsCubit extends Cubit<NewsState> {
   }
 
   Future<void> fetchStory(int storyID) async {
-    emit(NewsLoading());
     try {
-      final Story story = await _fetchStoryInIsolate(storyID);
-      emit(NewsLoaded([story]));
+      if (state is NewsLoaded) {
+        final Story story = await _fetchStoryInIsolate(storyID);
+        NewsLoaded loadedState = state as NewsLoaded;
+        loadedState = loadedState.copyWith(stories: {
+          ...loadedState.stories,
+          storyID: story,
+        });
+        emit(loadedState);
+      }
     } catch (e) {
       emit(NewsError(e.toString()));
+    }
+  }
+
+  Future<void> toggleFavorite(Story story) async {
+    if (state is NewsLoaded) {
+      NewsLoaded loadedState = state as NewsLoaded;
+      final Story cacheStory = story.copyWith(isBookmark: !story.isBookmark);
+
+      if (loadedState.stories.containsKey(story.id)) {
+        loadedState = loadedState.copyWith(stories: {
+          ...loadedState.stories,
+          story.id: cacheStory,
+        });
+
+        HiveHelper.addCacheStory(cacheStory);
+        emit(loadedState);
+      }
     }
   }
 
@@ -103,51 +135,70 @@ class NewsCubit extends Cubit<NewsState> {
     }
   }
 
-  Future<List<Story>> _fetchStoriesFromIds(
-      List<int> storyIds, int startIndex, int count) async {
+  Future<Map<int, Story>> _fetchStoriesFromIds(
+    List<int> storyIds,
+    int startIndex,
+    int count,
+  ) async {
     final idsToFetch = storyIds.skip(startIndex).take(count).toList();
 
-    final stories = await Future.wait(idsToFetch.map((id) async {
-      try {
-        return await _fetchStoryInIsolate(id);
-      } catch (e) {
-        return null;
-      }
-    }));
+    Map<int, Story> stories = {};
+    for (final id in idsToFetch) {
+      stories[id] = await _fetchStoryInIsolate(id);
+    }
 
-    return stories.where((story) => story != null).cast<Story>().toList();
+    return Future.value(stories);
   }
 
   Future<Story> _fetchStoryInIsolate(int storyId) async {
     final responsePort = ReceivePort();
-    await Isolate.spawn(_fetchStoryIsolate, [responsePort.sendPort, storyId]);
-    final port = await responsePort.first;
-    if (port is Map && port['success'] == true) {
-      return port['story'];
-    } else if (port is Map && port['success'] == false) {
-      throw Exception(port['error']);
+    final stories = HiveHelper.getBookmarkStories();
+
+    if (!HiveHelper.isCached(storyId)) {
+      await Isolate.spawn(
+          _fetchStoryIsolate, [responsePort.sendPort, storyId, stories]);
+      final port = await responsePort.first;
+
+      if (port is Map && port['success'] == true) {
+        final Story story = port['story'] as Story;
+        debugPrint("isBookmark ${story.isBookmark}");
+
+        HiveHelper.addCacheStory(story);
+        return port['story'];
+      } else if (port is Map && port['success'] == false) {
+        throw Exception(port['error']);
+      } else {
+        throw Exception("Unexpected data received from isolate");
+      }
     } else {
-      throw Exception("Unexpected data received from isolate");
+      final story = HiveHelper.getCacheStories()[storyId]!;
+      debugPrint("isBookmark ${story.isBookmark}");
+
+      return story;
     }
   }
 
   static Future<void> _fetchStoryIsolate(List<dynamic> args) async {
     SendPort sendPort = args[0];
     int storyId = args[1];
-
+    Map<int, Story> bookmarks = args[2];
     try {
-      final response = await http.get(urlForStory(storyId));
+      {
+        final response = await http.get(urlForStory(storyId));
 
-      if (response.statusCode == 200 && response.body != "null") {
-        final json = jsonDecode(response.body);
-        final story = Story.fromJson(json);
-        // debugPrint("story ${story}");
-        sendPort.send({'success': true, 'story': story});
-      } else {
-        sendPort.send({
-          'success': false,
-          'error': 'Unable to fetch story! ${response.statusCode}'
-        });
+        if (response.statusCode == 200 && response.body != "null") {
+          final json = jsonDecode(response.body);
+          Story story = Story.fromJson(json);
+          story = story.copyWith(isBookmark: bookmarks.containsKey(story.id));
+          // debugPrint("story ${story}");
+
+          sendPort.send({'success': true, 'story': story});
+        } else {
+          sendPort.send({
+            'success': false,
+            'error': 'Unable to fetch story! ${response.statusCode}'
+          });
+        }
       }
     } catch (e) {
       sendPort.send({'success': false, 'error': e.toString()});

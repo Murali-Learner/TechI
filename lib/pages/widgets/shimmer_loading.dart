@@ -1,4 +1,4 @@
-import 'package:tech_i/cubit/theme/theme_cubit.dart';
+import 'package:TechI/cubit/theme/theme_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shimmer/shimmer.dart';

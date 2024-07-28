@@ -1,4 +1,4 @@
-import 'package:tech_i/helper/enums.dart';
+import 'package:TechI/helper/enums.dart';
 
 extension NewsTypeExtension on NewsType {
   String get displayName {
@@ -9,6 +9,7 @@ extension NewsTypeExtension on NewsType {
         return 'New';
       case NewsType.bestStories:
         return 'Best';
+
       default:
         return '';
     }

@@ -1,20 +1,22 @@
 import 'dart:collection';
-import 'package:tech_i/model/story.dart';
-import 'package:tech_i/utils/extension/context_extension.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:TechI/cubit/bookmarkNews/bookmark_cubit.dart';
+import 'package:TechI/model/story.dart';
+import 'package:TechI/utils/extension/context_extension.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class InAppWebViewPage extends StatefulWidget {
-  const InAppWebViewPage({super.key, required this.story});
+class WebViewPage extends StatefulWidget {
+  const WebViewPage({super.key, required this.story});
   final Story story;
 
   @override
-  InAppWebViewPageState createState() => InAppWebViewPageState();
+  WebViewPageState createState() => WebViewPageState();
 }
 
-class InAppWebViewPageState extends State<InAppWebViewPage> {
+class WebViewPageState extends State<WebViewPage> {
   final GlobalKey webViewKey = GlobalKey();
 
   InAppWebViewController? webViewController;
@@ -31,14 +33,18 @@ class InAppWebViewPageState extends State<InAppWebViewPage> {
 
   String url = "";
   double progress = 0;
+  bool isBookmarked = false;
 
   @override
   void initState() {
     super.initState();
+    setState(() {
+      isBookmarked = widget.story.isBookmark;
+    });
     init();
   }
 
-  init() async {
+  Future<void> init() async {
     if (widget.story.url.isNotEmpty) {
       pullToRefreshController = kIsWeb ||
               ![TargetPlatform.iOS, TargetPlatform.android]
@@ -46,7 +52,8 @@ class InAppWebViewPageState extends State<InAppWebViewPage> {
           ? null
           : PullToRefreshController(
               settings: PullToRefreshSettings(
-                color: Colors.blue,
+                backgroundColor: Colors.green.withOpacity(0.2),
+                color: Colors.green,
               ),
               onRefresh: () async {
                 if (defaultTargetPlatform == TargetPlatform.android) {
@@ -62,28 +69,57 @@ class InAppWebViewPageState extends State<InAppWebViewPage> {
     }
   }
 
+  Future<void> toggleFavorite() async {
+    context.read<BookmarkCubit>().toggleBookMark(widget.story);
+    setState(() {
+      isBookmarked = !isBookmarked;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return (widget.story.url.isEmpty)
-        ? Material(
-            child: Center(
-                child: Text(
-              "No URL found",
-              style: context.textTheme.bodyLarge,
-            )),
-          )
-        : Scaffold(
-            appBar: AppBar(
-              title: Text(widget.story.title),
-              actions: [
-                IconButton(
-                    onPressed: () {
-                      launchUrl(Uri.parse(widget.story.url));
-                    },
-                    icon: const Icon(Icons.open_in_browser))
-              ],
+    return Scaffold(
+      appBar: AppBar(
+        title: Wrap(
+          children: [
+            Text(
+              widget.story.title,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: context.textTheme.bodyLarge!
+                  .copyWith(fontWeight: FontWeight.bold, fontSize: 18),
             ),
-            body: Stack(
+          ],
+        ),
+        actions: widget.story.url.isEmpty
+            ? null
+            : [
+                IconButton(
+                  onPressed: () {
+                    launchUrl(Uri.parse(widget.story.url));
+                  },
+                  icon: const Icon(Icons.open_in_browser),
+                ),
+                IconButton(
+                    onPressed: () async {
+                      await toggleFavorite();
+                    },
+                    icon: Icon(
+                      isBookmarked
+                          ? Icons.bookmark
+                          : Icons.bookmark_border_outlined,
+                      color: isBookmarked ? Colors.red : null,
+                    )),
+              ],
+      ),
+      body: widget.story.url.isEmpty
+          ? Center(
+              child: Text(
+                "Invalid URL",
+                style: context.textTheme.bodyLarge,
+              ),
+            )
+          : Stack(
               children: [
                 InAppWebView(
                   key: webViewKey,
@@ -161,11 +197,11 @@ class InAppWebViewPageState extends State<InAppWebViewPage> {
                 if (isLoading)
                   Center(
                     child: CircularProgressIndicator(
-                      color: context.theme.progressIndicatorTheme.color,
+                      color: context.theme.primaryColor,
                     ),
                   ),
               ],
             ),
-          );
+    );
   }
 }

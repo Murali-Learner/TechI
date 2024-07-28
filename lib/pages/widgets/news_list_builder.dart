@@ -1,9 +1,10 @@
-import 'package:tech_i/cubit/news/news_cubit.dart';
-import 'package:tech_i/cubit/news/news_state.dart';
-import 'package:tech_i/pages/widgets/news_card.dart';
-import 'package:tech_i/pages/widgets/shimmer_loading.dart';
+import 'package:TechI/cubit/news/news_cubit.dart';
+import 'package:TechI/cubit/news/news_state.dart';
+import 'package:TechI/pages/widgets/news_card.dart';
+import 'package:TechI/pages/widgets/shimmer_loading.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:TechI/utils/extension/context_extension.dart';
 
 class NewsListBuilder extends StatefulWidget {
   const NewsListBuilder({super.key, required this.controller});
@@ -17,7 +18,7 @@ class _NewsListBuilderState extends State<NewsListBuilder> {
   Widget build(BuildContext context) {
     return Expanded(
       child: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(4.0),
         child: BlocBuilder<NewsCubit, NewsState>(
           builder: (context, state) {
             if (state is NewsLoading) {
@@ -28,16 +29,19 @@ class _NewsListBuilderState extends State<NewsListBuilder> {
                   : (state as MoreNewsLoading).stories;
               return ListView.builder(
                 controller: widget.controller,
-                itemCount: stories.length + 1,
+                itemCount: stories.keys.length + 1,
                 itemBuilder: (context, index) {
                   if (index < stories.length) {
                     return NewsCard(
-                      story: stories[index],
+                      story: stories[stories.keys.elementAt(index)]!,
                     );
                   } else {
-                    return const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 16),
-                      child: Center(child: CircularProgressIndicator()),
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      child: Center(
+                          child: CircularProgressIndicator(
+                        color: context.theme.primaryColor,
+                      )),
                     );
                   }
                 },
