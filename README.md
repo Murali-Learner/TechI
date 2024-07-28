@@ -1,6 +1,6 @@
 # TechI
 
-TechI is a mobile application built with Flutter that brings you the latest and most relevant tech news. The app uses the Hacker News original APIs to fetch news articles, providing a seamless and engaging user experience with features like pagination, theming, in-app webview, and efficient HTTP calls using isolates.
+TechI is a mobile application built with Flutter that brings you the latest and most relevant tech news. The app uses the Hacker News original APIs to fetch news articles, providing a seamless and engaging user experience. Features include efficient state management with Bloc, dark and light theme switching, in-app webview for reading articles, caching with Hive DB to avoid repetitive API calls, and bookmark support to save articles for later reading.
 
 ## Features
 
@@ -9,6 +9,8 @@ TechI is a mobile application built with Flutter that brings you the latest and 
 - **Theming**: Switch between dark and light themes to match your preference.
 - **In-App WebView**: View entire articles within the app itself.
 - **Efficient HTTP Calls**: Uses isolates for HTTP calls to avoid disturbing the main thread during API calls.
+- **Caching**: Implemented caching with Hive DB to avoid repetitive API calls, storing news articles by their IDs for faster retrieval.
+- **Bookmark Support**: Allows users to bookmark news articles using Hive DB, so they can easily save and read them later.
 
 https://github.com/user-attachments/assets/196a67d1-2544-47f0-b267-5eba8b8a5f48
 
@@ -44,6 +46,8 @@ https://github.com/user-attachments/assets/196a67d1-2544-47f0-b267-5eba8b8a5f48
 - Open the app to see the latest tech news.
 - Switch between dark and light themes from the settings menu.
 - Tap on any news article to read it in the in-app webview.
+- Click on the bookmark icon on each news article to save it for later reading.
+- Click on the top right bookmark icon to view your saved bookmarks.
 
 ## Built With
 
@@ -51,6 +55,7 @@ https://github.com/user-attachments/assets/196a67d1-2544-47f0-b267-5eba8b8a5f48
 - [Dart](https://dart.dev/) - The programming language for Flutter.
 - [Hacker News API](https://github.com/HackerNews/API) - The API used to fetch the latest tech news.
 - [Bloc](https://bloclibrary.dev/#/) - State management library.
+- [Hive](https://docs.hivedb.dev/#/) - A lightweight and fast key-value database for Flutter applications.
 
 ## Contributing
 
