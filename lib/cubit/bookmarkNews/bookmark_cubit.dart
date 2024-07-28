@@ -13,11 +13,11 @@ class BookmarkCubit extends Cubit<BookmarkLoaded> {
     final updatedFavorites = {...loadedState.bookmarkStoryList};
     try {
       if (updateStory.isBookmark) {
-        await HiveHelper.addToBookmark(updateStory);
+        HiveHelper.addCacheStory(updateStory);
         updatedFavorites[story.id] = updateStory;
       } else {
         updatedFavorites.remove(story.id);
-        await HiveHelper.removeFromBookmarks(story.id);
+        await HiveHelper.removeFromCache(story.id);
       }
       loadedState = loadedState.copyWith(bookmarkStoryList: updatedFavorites);
       emit(loadedState);

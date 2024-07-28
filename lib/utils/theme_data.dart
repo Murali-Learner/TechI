@@ -84,12 +84,13 @@ final ThemeData lightTheme = ThemeData(
 //     // secondaryContainer: Colors.green[200],
 //   ),
 // );
+
 final ThemeData darkTheme = ThemeData(
   primarySwatch: Colors.green,
   primaryColor: Colors.green,
   primaryColorLight: Colors.green,
   useMaterial3: true,
-  scaffoldBackgroundColor: const Color(0xFF121212),
+  scaffoldBackgroundColor: Color.fromARGB(255, 45, 44, 44),
   appBarTheme: const AppBarTheme(
     iconTheme: IconThemeData(color: Colors.white),
     backgroundColor: Color(0xFF1E1E1E),
@@ -114,11 +115,14 @@ final ThemeData darkTheme = ThemeData(
   progressIndicatorTheme: const ProgressIndicatorThemeData(
     color: Colors.green,
   ),
+  cardTheme: const CardTheme(
+    color: Color.fromARGB(255, 27, 28, 27),
+  ),
   colorScheme: ColorScheme.fromSwatch(
     primarySwatch: Colors.green,
     brightness: Brightness.dark,
   ).copyWith(
-    primary: Colors.green,
-    surface: const Color(0xFF1E1E1E),
+    primary: Colors.green.withOpacity(0.8),
+    surface: Color.fromARGB(255, 55, 48, 48),
   ),
 );

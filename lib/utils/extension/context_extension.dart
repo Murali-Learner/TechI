@@ -4,6 +4,9 @@ extension ContextExtensions on BuildContext {
   TextTheme get textTheme => Theme.of(this).textTheme;
   ThemeData get theme => Theme.of(this);
 
+  bool get isLight => theme.brightness == Brightness.light;
+  bool get isDark => theme.brightness == Brightness.dark;
+
   static const double _tabletThreshold = 600.0;
   static const double _desktopThreshold = 900.0;
 

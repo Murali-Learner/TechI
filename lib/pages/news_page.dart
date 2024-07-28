@@ -82,6 +82,8 @@ class _NewsPageState extends State<NewsPage>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        surfaceTintColor: context.isLight ? null : Colors.transparent,
+        backgroundColor: context.isLight ? null : Colors.green.withOpacity(0.1),
         title: Text(
           'TechI',
           style: context.textTheme.bodyMedium!

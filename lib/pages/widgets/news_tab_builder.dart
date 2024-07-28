@@ -1,4 +1,5 @@
 import 'package:TechI/helper/enums.dart';
+import 'package:TechI/utils/extension/context_extension.dart';
 import 'package:TechI/utils/extension/string_extension.dart';
 import 'package:flutter/material.dart';
 
@@ -13,7 +14,9 @@ class NewsTabBuilder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.green.withOpacity(0.1),
+      color: context.isDark
+          ? Colors.green.withOpacity(0.1)
+          : Colors.green.withOpacity(0.1),
       child: TabBar(
         controller: _tabController,
         tabs: NewsType.values.map((type) {

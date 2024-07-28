@@ -70,7 +70,7 @@ class _NewsCardState extends State<NewsCard> {
                               child: Text(
                                 widget.story.title,
                                 style: context.textTheme.bodyLarge!.copyWith(
-                                  fontSize: context.isTablet ? 16 : 16,
+                                  fontSize: context.isTablet ? 16 : 15,
                                   fontWeight: FontWeight.w500,
                                 ),
                                 // overflow: TextOverflow.ellipsis,
