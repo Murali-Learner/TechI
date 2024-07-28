@@ -1,4 +1,5 @@
 import 'package:TechI/pages/widgets/shimmer_loading.dart';
+import 'package:TechI/utils/extension/context_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:TechI/cubit/bookmarkNews/bookmark_cubit.dart';
@@ -12,6 +13,11 @@ class FavNewsPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Bookmarks'),
+        backgroundColor: context.theme.scaffoldBackgroundColor,
+        surfaceTintColor: context.theme.scaffoldBackgroundColor,
+        shadowColor:
+            context.theme.appBarTheme.iconTheme!.color!.withOpacity(0.5),
+        elevation: 5,
       ),
       body: BlocBuilder<BookmarkCubit, BookmarkLoaded>(
         builder: (context, state) {
@@ -24,7 +30,10 @@ class FavNewsPage extends StatelessWidget {
           }
 
           return ListView.builder(
-            padding: const EdgeInsets.all(4.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 4,
+              vertical: 15,
+            ),
             itemCount: state.bookmarkStoryList.keys.length,
             itemBuilder: (context, index) {
               final storyMap = state.bookmarkStoryList[

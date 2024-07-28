@@ -17,7 +17,7 @@ void main() async {
   await hiveHelper.initHive();
   runApp(
     DevicePreview(
-      enabled: !kReleaseMode,
+      enabled: kDebugMode,
       builder: (context) => const MyApp(),
     ),
   );

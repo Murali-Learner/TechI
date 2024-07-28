@@ -80,10 +80,18 @@ class _NewsPageState extends State<NewsPage>
 
   @override
   Widget build(BuildContext context) {
+    Size preferredSize = const Size.fromHeight(kToolbarHeight);
     return Scaffold(
       appBar: AppBar(
-        surfaceTintColor: context.isLight ? null : Colors.transparent,
-        backgroundColor: context.isLight ? null : Colors.green.withOpacity(0.1),
+        shadowColor:
+            context.theme.appBarTheme.iconTheme!.color!.withOpacity(0.5),
+        elevation: 5,
+        bottom: PreferredSize(
+          preferredSize: preferredSize,
+          child: NewsTabBuilder(tabController: _tabController),
+        ),
+        surfaceTintColor: context.theme.scaffoldBackgroundColor,
+        backgroundColor: context.theme.scaffoldBackgroundColor,
         title: Text(
           'TechI',
           style: context.textTheme.bodyMedium!
@@ -113,12 +121,7 @@ class _NewsPageState extends State<NewsPage>
       ),
       body: RefreshIndicator(
         onRefresh: _refresh,
-        child: Column(
-          children: [
-            NewsTabBuilder(tabController: _tabController),
-            NewsListBuilder(controller: _controller),
-          ],
-        ),
+        child: NewsListBuilder(controller: _controller),
       ),
       floatingActionButton: BlocBuilder<ScrollButtonCubit, ScrollButtonState>(
         builder: (context, state) {

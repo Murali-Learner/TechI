@@ -9,10 +9,10 @@ final ThemeData lightTheme = ThemeData(
   appBarTheme: const AppBarTheme(
     iconTheme: IconThemeData(color: Colors.black),
   ),
-  tabBarTheme: TabBarTheme(
-    dividerColor: Colors.green.withOpacity(0.1),
-    labelStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-    unselectedLabelStyle: const TextStyle(fontSize: 15),
+  tabBarTheme: const TabBarTheme(
+    dividerColor: Color(0xFFFFFFFF),
+    labelStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+    unselectedLabelStyle: TextStyle(fontSize: 15),
   ),
   iconTheme: const IconThemeData(color: Colors.black),
   textTheme: const TextTheme(
@@ -90,16 +90,16 @@ final ThemeData darkTheme = ThemeData(
   primaryColor: Colors.green,
   primaryColorLight: Colors.green,
   useMaterial3: true,
-  scaffoldBackgroundColor: Color.fromARGB(255, 45, 44, 44),
+  scaffoldBackgroundColor: const Color.fromARGB(255, 45, 44, 44),
   appBarTheme: const AppBarTheme(
     iconTheme: IconThemeData(color: Colors.white),
     backgroundColor: Color(0xFF1E1E1E),
   ),
-  tabBarTheme: TabBarTheme(
-    dividerColor: Colors.green.withOpacity(0.3),
-    labelStyle: const TextStyle(
+  tabBarTheme: const TabBarTheme(
+    dividerColor: Color.fromARGB(255, 45, 44, 44),
+    labelStyle: TextStyle(
         fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
-    unselectedLabelStyle: const TextStyle(fontSize: 15, color: Colors.grey),
+    unselectedLabelStyle: TextStyle(fontSize: 15, color: Colors.grey),
   ),
   iconTheme: const IconThemeData(color: Colors.white),
   textTheme: const TextTheme(
@@ -123,6 +123,6 @@ final ThemeData darkTheme = ThemeData(
     brightness: Brightness.dark,
   ).copyWith(
     primary: Colors.green.withOpacity(0.8),
-    surface: Color.fromARGB(255, 55, 48, 48),
+    surface: const Color.fromARGB(255, 55, 48, 48),
   ),
 );

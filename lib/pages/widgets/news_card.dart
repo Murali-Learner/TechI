@@ -50,7 +50,10 @@ class _NewsCardState extends State<NewsCard> {
           );
         },
         child: Card(
-          elevation: 1.0,
+          elevation: 3.0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(5),
+          ),
           child: SizedBox(
             child: Padding(
               padding: const EdgeInsets.all(8.0),

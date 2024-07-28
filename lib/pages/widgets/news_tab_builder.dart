@@ -13,18 +13,15 @@ class NewsTabBuilder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: context.isDark
-          ? Colors.green.withOpacity(0.1)
-          : Colors.green.withOpacity(0.1),
-      child: TabBar(
-        controller: _tabController,
-        tabs: NewsType.values.map((type) {
-          return Tab(
-            text: type.displayName,
-          );
-        }).toList(),
-      ),
+    return TabBar(
+      dividerColor: context.theme.scaffoldBackgroundColor,
+      indicatorSize: TabBarIndicatorSize.label,
+      controller: _tabController,
+      tabs: NewsType.values.map((type) {
+        return Tab(
+          text: type.displayName,
+        );
+      }).toList(),
     );
   }
 }
