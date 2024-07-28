@@ -12,7 +12,11 @@ TechI is a mobile application built with Flutter that brings you the latest and 
 - **Caching**: Implemented caching with Hive DB to avoid repetitive API calls, storing news articles by their IDs for faster retrieval.
 - **Bookmark Support**: Allows users to bookmark news articles using Hive DB, so they can easily save and read them later.
 
-https://github.com/user-attachments/assets/196a67d1-2544-47f0-b267-5eba8b8a5f48
+
+
+
+https://github.com/user-attachments/assets/c295ab33-f049-4946-9bd8-7f051f438851
+
 
 ## Getting Started
 
