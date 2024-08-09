@@ -11,14 +11,17 @@ class ThemeSetIconWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<ThemeCubit, ThemeState>(
       builder: (context, state) {
-        return IconButton(
-          iconSize: 25,
-          onPressed: () {
-            context.read<ThemeCubit>().toggleTheme();
-          },
-          icon: Icon(state != ThemeState.light
-              ? Icons.wb_sunny
-              : Icons.dark_mode_sharp),
+        return Tooltip(
+          message: "Theme",
+          child: IconButton(
+            iconSize: 25,
+            onPressed: () {
+              context.read<ThemeCubit>().toggleTheme();
+            },
+            icon: Icon(state != ThemeState.light
+                ? Icons.wb_sunny
+                : Icons.dark_mode_sharp),
+          ),
         );
       },
     );

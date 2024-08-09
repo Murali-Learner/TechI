@@ -1,17 +1,16 @@
-import 'package:TechI/cubit/bookmarkNews/bookmark_cubit.dart';
-import 'package:TechI/cubit/scrollButton/scroll_button_cubit.dart';
 import 'package:TechI/cubit/news/news_cubit.dart';
 import 'package:TechI/cubit/news/news_state.dart';
+import 'package:TechI/cubit/scrollButton/scroll_button_cubit.dart';
 import 'package:TechI/helper/enums.dart';
-import 'package:TechI/pages/bookmark_news_page.dart';
+import 'package:TechI/pages/widgets/bookmarks_icon_widget.dart';
 import 'package:TechI/pages/widgets/news_list_builder.dart';
 import 'package:TechI/pages/widgets/news_tab_builder.dart';
 import 'package:TechI/pages/widgets/theme_set_icon_widget.dart';
 import 'package:TechI/utils/extension/context_extension.dart';
+import 'package:TechI/utils/extension/spacer_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:TechI/utils/extension/spacer_extension.dart';
 
 class NewsPage extends StatefulWidget {
   const NewsPage({super.key});
@@ -44,8 +43,12 @@ class _NewsPageState extends State<NewsPage>
     });
     _controller = ScrollController();
     _controller.addListener(_scrollListener);
-
-    newsCubit.fetchStories();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        newsCubit.setPageSize(context.isMobile ? 12 : 18);
+        newsCubit.fetchStories();
+      }
+    });
   }
 
   void _scrollListener() {
@@ -56,7 +59,7 @@ class _NewsPageState extends State<NewsPage>
 
     if (position.pixels == position.maxScrollExtent &&
         newsState is! MoreNewsLoading) {
-      newsCubit.setPageCount();
+      newsCubit.loadMoreNews();
     }
     if (position.pixels == position.minScrollExtent) {
       buttonCubit.setScrollButtonVisibility(false);
@@ -85,7 +88,8 @@ class _NewsPageState extends State<NewsPage>
       appBar: AppBar(
         shadowColor:
             context.theme.appBarTheme.iconTheme!.color!.withOpacity(0.5),
-        elevation: 5,
+        elevation: 2.0,
+        scrolledUnderElevation: 5.0,
         bottom: PreferredSize(
           preferredSize: preferredSize,
           child: NewsTabBuilder(tabController: _tabController),
@@ -100,23 +104,7 @@ class _NewsPageState extends State<NewsPage>
         actions: [
           const ThemeSetIconWidget(),
           10.hSpace,
-          Tooltip(
-            message: "Bookmark News",
-            child: IconButton(
-              onPressed: () async {
-                await context.read<BookmarkCubit>().fetchBookmarkStories();
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) {
-                      return const FavNewsPage();
-                    },
-                  ),
-                );
-              },
-              icon: const Icon(Icons.bookmark_border_rounded),
-            ),
-          ),
+          const BookmarksIconWidget(),
         ],
       ),
       body: RefreshIndicator(
@@ -136,7 +124,7 @@ class _NewsPageState extends State<NewsPage>
                     _controller.animateTo(
                       _controller.position.minScrollExtent,
                       curve: Curves.easeOut,
-                      duration: const Duration(milliseconds: 500),
+                      duration: const Duration(milliseconds: 600),
                     );
                   },
                 );

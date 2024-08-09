@@ -1,11 +1,14 @@
 import 'dart:collection';
-import 'package:flutter_bloc/flutter_bloc.dart';
+
 import 'package:TechI/cubit/bookmarkNews/bookmark_cubit.dart';
+import 'package:TechI/cubit/news/news_cubit.dart';
 import 'package:TechI/model/story.dart';
 import 'package:TechI/utils/extension/context_extension.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class WebViewPage extends StatefulWidget {
@@ -71,6 +74,8 @@ class WebViewPageState extends State<WebViewPage> {
 
   Future<void> toggleFavorite() async {
     context.read<BookmarkCubit>().toggleBookMark(widget.story);
+    context.read<NewsCubit>().toggleFavorite(widget.story);
+
     setState(() {
       isBookmarked = !isBookmarked;
     });
@@ -94,22 +99,41 @@ class WebViewPageState extends State<WebViewPage> {
         actions: widget.story.url.isEmpty
             ? null
             : [
-                IconButton(
-                  onPressed: () {
-                    launchUrl(Uri.parse(widget.story.url));
-                  },
-                  icon: const Icon(Icons.open_in_browser),
-                ),
-                IconButton(
+                Tooltip(
+                  message: "Share",
+                  child: IconButton(
                     onPressed: () async {
-                      await toggleFavorite();
+                      await Share.share(
+                        widget.story.url,
+                        subject:
+                            "Checkout the Latest news on TechI: ${widget.story.title}",
+                      );
                     },
-                    icon: Icon(
-                      isBookmarked
-                          ? Icons.bookmark
-                          : Icons.bookmark_border_outlined,
-                      color: isBookmarked ? Colors.red : null,
-                    )),
+                    icon: const Icon(Icons.share),
+                  ),
+                ),
+                Tooltip(
+                  message: "Open in Browser",
+                  child: IconButton(
+                    onPressed: () {
+                      launchUrl(Uri.parse(widget.story.url));
+                    },
+                    icon: const Icon(Icons.open_in_browser),
+                  ),
+                ),
+                Tooltip(
+                  message: "Bookmark",
+                  child: IconButton(
+                      onPressed: () async {
+                        await toggleFavorite();
+                      },
+                      icon: Icon(
+                        isBookmarked
+                            ? Icons.bookmark
+                            : Icons.bookmark_border_outlined,
+                        color: isBookmarked ? Colors.red : null,
+                      )),
+                ),
               ],
       ),
       body: widget.story.url.isEmpty

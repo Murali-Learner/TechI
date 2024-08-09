@@ -11,25 +11,22 @@ import 'package:http/http.dart' as http;
 
 import 'news_state.dart';
 
-class NewsCubit extends Cubit<NewsState> {
-  NewsCubit({
+class NewsCubit1 extends Cubit<NewsState> {
+  NewsCubit1({
     this.newsType = NewsType.topStories,
+    this.pageSize = 12,
   }) : super(NewsInitial());
 
   NewsType newsType;
-  int pageSize = 12;
+  int pageSize;
   List<int> allStoryIds = [];
   int currentPage = 0;
   Map<int, Story> favNews = {};
 
   void setNewsType(NewsType type) {
     newsType = type;
-    fetchStories();
-  }
 
-  void setPageSize(int size) {
-    if (pageSize > 0) pageSize = size;
-    debugPrint("set page size ${pageSize}");
+    fetchStories();
   }
 
   void loadMoreNews() async {
@@ -37,21 +34,16 @@ class NewsCubit extends Cubit<NewsState> {
     if (currentState is NewsLoaded && currentState is! MoreNewsLoading) {
       emit(MoreNewsLoading(currentState.stories));
       try {
-        final stopwatch = Stopwatch()..start();
+        debugPrint("PageSize $pageSize");
         final Map<int, Story> newStories = await _fetchStoriesFromIds(
-          allStoryIds,
-          currentPage * pageSize,
-          pageSize,
-        );
+            allStoryIds, currentPage * pageSize, pageSize);
         currentPage++;
         currentState = currentState.copyWith(stories: {
           ...currentState.stories,
           ...newStories,
         });
         emit(currentState);
-        debugPrint(
-            "allStories  ${stopwatch.elapsed} ${currentState.stories.length}");
-        stopwatch.reset();
+        debugPrint("allStories ${currentState.stories.length}");
       } catch (e) {
         emit(NewsError(e.toString()));
       }
@@ -59,13 +51,12 @@ class NewsCubit extends Cubit<NewsState> {
   }
 
   Future<void> fetchStories() async {
-    if (isClosed) return;
     emit(NewsLoading());
     try {
-      final stopwatch = Stopwatch()..start();
       allStoryIds = await _fetchStoryIdsInIsolate(newsType);
       currentPage = 0;
-      debugPrint("allStoryIds ${allStoryIds.length}");
+      print("allStoryIds ${allStoryIds.length}");
+      final stopwatch = Stopwatch()..start();
       final Map<int, Story> stories = await _fetchStoriesFromIds(
         allStoryIds,
         currentPage * pageSize,
@@ -73,26 +64,20 @@ class NewsCubit extends Cubit<NewsState> {
       );
       currentPage++;
       debugPrint(' executed in ${stopwatch.elapsed}');
-
-      if (!isClosed) {
-        debugPrint(' executed in ${stopwatch.elapsed}');
-        emit(NewsLoaded(stories));
-      }
+      emit(NewsLoaded(stories));
     } catch (e) {
-      if (!isClosed) {
-        emit(NewsError(e.toString()));
-      }
+      emit(NewsError(e.toString()));
     }
   }
 
   Future<void> fetchStory(int storyID) async {
     try {
       if (state is NewsLoaded) {
-        final Story? story = await _fetchStoryInIsolate(storyID);
+        final Story story = await _fetchStoryInIsolate(storyID);
         NewsLoaded loadedState = state as NewsLoaded;
         loadedState = loadedState.copyWith(stories: {
           ...loadedState.stories,
-          storyID: story!,
+          storyID: story,
         });
         emit(loadedState);
       }
@@ -140,6 +125,7 @@ class NewsCubit extends Cubit<NewsState> {
 
       if (response.statusCode == 200) {
         final storyIds = List<int>.from(jsonDecode(response.body));
+
         sendPort.send({'success': true, 'storyIds': storyIds});
       } else {
         sendPort.send({
@@ -162,19 +148,14 @@ class NewsCubit extends Cubit<NewsState> {
     final idsToFetch = storyIds.skip(startIndex).take(count).toList();
 
     Map<int, Story> stories = {};
-    final futures = idsToFetch.map((id) => _fetchStoryInIsolate(id));
-    final results = await Future.wait(futures);
-
-    for (var i = 0; i < idsToFetch.length; i++) {
-      if (results[i] != null) {
-        stories[idsToFetch[i]] = results[i]!;
-      }
+    for (final id in idsToFetch) {
+      stories[id] = await _fetchStoryInIsolate(id);
     }
-    debugPrint("results ${results.length} ${stories.length}");
-    return stories;
+
+    return Future.value(stories);
   }
 
-  Future<Story?> _fetchStoryInIsolate(int storyId) async {
+  Future<Story> _fetchStoryInIsolate(int storyId) async {
     final bookmarkStories = HiveHelper.getBookmarkStories();
 
     if (!HiveHelper.isCached(storyId)) {

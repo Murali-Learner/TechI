@@ -2,10 +2,10 @@ import 'package:TechI/cubit/news/news_cubit.dart';
 import 'package:TechI/cubit/news/news_state.dart';
 import 'package:TechI/pages/widgets/news_card.dart';
 import 'package:TechI/pages/widgets/shimmer_loading.dart';
+import 'package:TechI/utils/extension/context_extension.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:TechI/utils/extension/context_extension.dart';
 
 class NewsListBuilder extends StatefulWidget {
   const NewsListBuilder({super.key, required this.controller});

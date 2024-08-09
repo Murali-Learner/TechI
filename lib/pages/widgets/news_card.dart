@@ -1,11 +1,11 @@
-import 'package:TechI/utils/extension/spacer_extension.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:TechI/cubit/bookmarkNews/bookmark_cubit.dart';
 import 'package:TechI/cubit/news/news_cubit.dart';
 import 'package:TechI/model/story.dart';
 import 'package:TechI/pages/web_view_page.dart';
 import 'package:TechI/utils/extension/context_extension.dart';
+import 'package:TechI/utils/extension/spacer_extension.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class NewsCard extends StatefulWidget {
   final Story story;
@@ -50,7 +50,7 @@ class _NewsCardState extends State<NewsCard> {
           );
         },
         child: Card(
-          elevation: 3.0,
+          elevation: 2.0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(5),
           ),
