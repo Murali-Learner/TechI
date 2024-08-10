@@ -1,12 +1,12 @@
+import 'package:TechI/cubit/bookmarkNews/bookmark_cubit.dart';
+import 'package:TechI/pages/widgets/news_card.dart';
 import 'package:TechI/pages/widgets/shimmer_loading.dart';
 import 'package:TechI/utils/extension/context_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:TechI/cubit/bookmarkNews/bookmark_cubit.dart';
-import 'package:TechI/pages/widgets/news_card.dart';
 
-class FavNewsPage extends StatelessWidget {
-  const FavNewsPage({super.key});
+class BookmarkNewsPage extends StatelessWidget {
+  const BookmarkNewsPage({super.key});
 
   @override
   Widget build(BuildContext context) {

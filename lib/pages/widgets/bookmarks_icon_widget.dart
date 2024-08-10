@@ -19,7 +19,7 @@ class BookmarksIconWidget extends StatelessWidget {
             context,
             MaterialPageRoute(
               builder: (context) {
-                return const FavNewsPage();
+                return const BookmarkNewsPage();
               },
             ),
           );
