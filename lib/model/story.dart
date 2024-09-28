@@ -1,5 +1,6 @@
-import 'package:hive/hive.dart';
 import 'package:TechI/helper/hive_helper.dart';
+import 'package:hive/hive.dart';
+
 part 'story.g.dart';
 
 @HiveType(typeId: 0)
@@ -55,7 +56,7 @@ class Story {
       descendants: json["descendants"] ?? 0,
       score: json["score"] ?? 0,
       title: json["title"] ?? '',
-      url: json["url"] ?? '',
+      url: (json["url"] ?? '').toString().trim(),
       kids: json["kids"]?.cast<int>() ?? [],
       isBookmark: HiveHelper.isFav(json["id"] ?? 0),
     );

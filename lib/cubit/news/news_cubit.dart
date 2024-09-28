@@ -166,7 +166,7 @@ class NewsCubit extends Cubit<NewsState> {
     final results = await Future.wait(futures);
 
     for (var i = 0; i < idsToFetch.length; i++) {
-      if (results[i] != null) {
+      if (results[i] != null && results[i]!.url.isNotEmpty) {
         stories[idsToFetch[i]] = results[i]!;
       }
     }
@@ -196,19 +196,22 @@ class NewsCubit extends Cubit<NewsState> {
   static Future<Story?> fetchStoryIsolate(
       int storyId, Map<int, Story> bookmarks) async {
     try {
-      {
-        final response = await http.get(urlForStory(storyId));
+      final response = await http.get(urlForStory(storyId));
 
-        if (response.statusCode == 200 && response.body != "null") {
-          final json = jsonDecode(response.body);
-          Story story = Story.fromJson(json);
+      if (response.statusCode == 200 && response.body != "null") {
+        final json = jsonDecode(response.body);
+        Story story = Story.fromJson(json);
+
+        if (story.url.isNotEmpty) {
           story = story.copyWith(isBookmark: bookmarks.containsKey(story.id));
-
           return story;
         } else {
-          debugPrint("Error in fetching story");
+          debugPrint("Skipping story $storyId due to empty URL");
           return null;
         }
+      } else {
+        debugPrint("Error in fetching story");
+        return null;
       }
     } catch (e) {
       debugPrint("Error in fetching story $e");
